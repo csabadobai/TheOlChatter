@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF000"
+    android:background="#FFFFFF"
     android:orientation="vertical"
     tools:context="com.example.csaba.theolchatter.LoginActivity">
 
-    <FrameLayout
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:alpha="0.3"
+        android:contentDescription="@string/bkg_login"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bkg_login" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/bkg_login"
-            android:scaleType = "centerCrop"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="2">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/the_ol_chatter"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <EditText
                 android:id="@+id/username"
@@ -29,26 +49,18 @@
                 android:layout_centerInParent="true"
                 android:layout_margin="8dp"
                 android:hint="@string/enter_your_username"
-                android:lines="1"
+                android:singleLine="true"
                 android:textAlignment="center" />
 
             <Button
                 android:id="@+id/login"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_below="@+id/username"
+                android:layout_centerHorizontal="true"
                 android:layout_margin="8dp"
                 android:background="@drawable/btn_login"
                 android:text="@string/btn_login" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="100dp"
-                android:text="@string/the_ol_chatter"
-                android:textSize="24sp"
-                android:textStyle="bold" />
         </RelativeLayout>
-    </FrameLayout>
-</RelativeLayout>
+    </LinearLayout>
+</FrameLayout>
