@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF000"
+    android:orientation="vertical"
+    tools:context="com.example.csaba.theolchatter.LoginActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/bkg_login"
+            android:scaleType = "centerCrop"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_margin="8dp"
+                android:hint="@string/enter_your_username"
+                android:lines="1"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/username"
+                android:layout_margin="8dp"
+                android:background="@drawable/btn_login"
+                android:text="@string/btn_login" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="100dp"
+                android:text="@string/the_ol_chatter"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+    </FrameLayout>
+</RelativeLayout>
