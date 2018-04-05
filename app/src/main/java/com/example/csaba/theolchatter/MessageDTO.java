@@ -1,13 +1,16 @@
 package com.example.csaba.theolchatter;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+
 /**
  * Created by Csaba on 26-Mar-18.
  */
 
 public class MessageDTO {
-    private String username;
-    private String date;
     private String message;
+    private String username;
+    private String timestamp;
 
     public String getUsername() {
         return username;
@@ -18,11 +21,11 @@ public class MessageDTO {
     }
 
     public String getDate() {
-        return date;
+        return timestamp;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDate(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getMessage() {

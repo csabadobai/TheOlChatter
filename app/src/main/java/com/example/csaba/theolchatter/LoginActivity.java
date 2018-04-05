@@ -1,6 +1,7 @@
 package com.example.csaba.theolchatter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,15 +13,17 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String IP = "192.168.0.104";
+    private static final String IP = "192.168.0.102";
     private static final int PORT = 2014;
+    public static String username;
+    public static Socket socket;
 
     public void handleSocketMessage(String message) {
         Log.d("Login Activity", message);
@@ -37,30 +40,38 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String username = userNameField.getText().toString();
+                username = userNameField.getText().toString();
                 new Thread() {
 
                     @Override
                     public void run() {
                         try {
-                            Socket socket = new Socket(IP, PORT);
-                            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-                            outputStreamWriter.write(username);
-                            outputStreamWriter.flush();
+                            socket = new Socket(IP, PORT);
                             InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
                             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                             String line;
-                            while ((line = bufferedReader.readLine()) != null) {
+                            if ((line = bufferedReader.readLine()) != null) {
                                 LoginActivity.this.handleSocketMessage(line);
+                                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
+                                BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+                                bufferedWriter.write(username);
+                                bufferedWriter.newLine();
+                                bufferedWriter.flush();
                             }
+
+                            if (socket.isConnected()){
+                                Intent intent = new Intent(LoginActivity.this.getApplicationContext(), ChatActivity.class);
+                                startActivity(intent);
+                            }
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
+
                 }.start();
             }
         });
-
     }
 
     @Override
@@ -73,7 +84,9 @@ public class LoginActivity extends AppCompatActivity {
                 if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
                     v.clearFocus();
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
                 }
             }
         }

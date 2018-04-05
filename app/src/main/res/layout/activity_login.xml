@@ -50,7 +50,9 @@
                 android:layout_margin="8dp"
                 android:hint="@string/enter_your_username"
                 android:singleLine="true"
-                android:textAlignment="center" />
+                android:drawableLeft="@drawable/ic_account_circle"
+                android:textAlignment="center"
+                android:drawableStart="@drawable/ic_account_circle" />
 
             <Button
                 android:id="@+id/login"
