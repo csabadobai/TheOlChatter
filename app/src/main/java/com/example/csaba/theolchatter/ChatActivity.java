@@ -1,12 +1,19 @@
 package com.example.csaba.theolchatter;
 
+import android.content.Context;
+import android.graphics.Rect;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,6 +29,7 @@ import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.example.csaba.theolchatter.LoginActivity.socket;
 import static com.example.csaba.theolchatter.LoginActivity.username;
@@ -33,15 +41,18 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
 
         final MessageDTO messageDTO = new MessageDTO();
         final Gson gson = new Gson();
 
-        RecyclerView recyclerView = findViewById(R.id.msg_list);
+        final RecyclerView recyclerView = findViewById(R.id.msg_list);
         recyclerView.setAdapter(new Adapter(messageList));
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.refreshDrawableState();
 
-        Button send = findViewById(R.id.bt_send_message);
+        final Button send = findViewById(R.id.bt_send_message);
         final EditText message = findViewById(R.id.et_message);
 
         new Thread() {
@@ -66,23 +77,47 @@ public class ChatActivity extends AppCompatActivity {
             }
         }.start();
 
+        message.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // TODO
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (message.toString().trim().length() == 0) {
+                    send.setEnabled(false);
+                } else {
+                    send.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // TODO
+            }
+        });
+
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                messageDTO.setMessage(message.getText().toString());
-                messageDTO.setDate(timestamp.toString());
-                messageDTO.setUsername(username);
-                messageList.add(messageDTO);
+                if (!isMessageEmpty(message.getText().toString())) {
+                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                    messageDTO.setMessage(message.getText().toString());
+                    messageDTO.setDate(timestamp.toString());
+                    messageDTO.setUsername(username);
+                    messageList.add(messageDTO);
 
-                try {
-                    PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
-                    printWriter.println(messageDTO.getMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    try {
+                        PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+                        printWriter.println(messageDTO.getMessage());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-
+                recyclerView.refreshDrawableState();
                 message.setText("");
+
             }
         });
     }
@@ -128,5 +163,27 @@ public class ChatActivity extends AppCompatActivity {
             }
         }
     }
-}
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    private Boolean isMessageEmpty(String message) {
+        return message.trim().length() == 0;
+    }
+}
