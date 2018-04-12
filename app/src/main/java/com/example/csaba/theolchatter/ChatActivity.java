@@ -3,6 +3,7 @@ package com.example.csaba.theolchatter;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.UiThread;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,21 +37,25 @@ import static com.example.csaba.theolchatter.LoginActivity.username;
 
 public class ChatActivity extends AppCompatActivity {
     public List<MessageDTO> messageList = new ArrayList<>();
+    public RecyclerView recyclerView;
+    public Gson gson;
+    public Adapter adapterList;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        FloatingActionButton floatingActionButton = findViewById(R.id.fab);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
+        gson = new Gson();
 
         final MessageDTO messageDTO = new MessageDTO();
-        final Gson gson = new Gson();
 
-        final RecyclerView recyclerView = findViewById(R.id.msg_list);
-        recyclerView.setAdapter(new Adapter(messageList));
+        adapterList = new Adapter(messageList);
+        recyclerView = findViewById(R.id.msg_list);
+        recyclerView.setAdapter(adapterList);
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.refreshDrawableState();
 
         final Button send = findViewById(R.id.bt_send_message);
         final EditText message = findViewById(R.id.et_message);
@@ -66,10 +71,14 @@ public class ChatActivity extends AppCompatActivity {
                     bufferedReader = new BufferedReader(inputStreamReader);
                     String message;
                     while ((message = bufferedReader.readLine()) != null) {
-                        JsonParser jsonParser = new JsonParser();
-                        JsonObject jsonObject = (JsonObject) jsonParser.parse(message);
-                        MessageDTO messageModel = gson.fromJson(jsonObject.toString(), MessageDTO.class);
-                        messageList.add(messageModel);
+                        final String finalMessage = message;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                onMessageReceived(finalMessage);
+
+                            }
+                        });
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -115,7 +124,7 @@ public class ChatActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-                recyclerView.refreshDrawableState();
+                adapterList.notifyDataSetChanged();
                 message.setText("");
 
             }
@@ -185,5 +194,13 @@ public class ChatActivity extends AppCompatActivity {
 
     private Boolean isMessageEmpty(String message) {
         return message.trim().length() == 0;
+    }
+
+    private void onMessageReceived(String message) {
+        JsonParser jsonParser = new JsonParser();
+        JsonObject jsonObject = (JsonObject) jsonParser.parse(message);
+        MessageDTO messageModel = gson.fromJson(jsonObject.toString(), MessageDTO.class);
+        messageList.add(messageModel);
+        adapterList.notifyDataSetChanged();
     }
 }
